@@ -1,0 +1,11 @@
+<!-- templates/users_index.html -->
+{% extends 'base.html' %}
+>
+{% block content %}
+    <h1>Users</h1>
+    {% for user in users %}
+        <h2>{{ user.name }}</h2>
+        <small>{{ user.charity }}</small>
+        <small>${{ user.donation }}</small>
+    {% endfor %}
+{% endblock %}
