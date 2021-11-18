@@ -1,5 +1,6 @@
 
-# env/bin/activate
+# python3 -m venv env
+# source env/bin/activate 
 # If you ever want to deactivate your virtual environment, just type deactivate in your terminal window.#
 # export FLASK_ENV=development; flask run
 # http://127.0.0.1:5000/
@@ -25,17 +26,18 @@ import certifi
 
 ca = certifi.where()
 app = Flask(__name__)
-host = os.environ.get('MONGODB_URI') 
-DATABASE_URL = f'mongodb+srv://alexross:{os.environ.get("password")}@cluster0.c3gdz.mongodb.net/Cluster0?retryWrites=true&w=majority'
-
-client = MongoClient(DATABASE_URL, tlsCAFile=ca)
 """
-#host = os.environ.get("DB_URL")
-client = MongoClient(host=host)
+
+
+uri = os.environ.get('MONGODB_URI')
+client = MongoClient(uri)
 db = client.CharityTracker
-charities = db.charities
-users = db.users
-donations = db.donations
+
+#ca = certifi.where()
+#host = os.environ.get('MONGODB_URI') 
+#DATABASE_URL = f'mongodb+srv://alexross:{os.environ.get("password")}@cluster0.c3gdz.mongodb.net/Cluster0?retryWrites=true&w=majority'
+
+
 
 
 #create instance of the flask server (Server:Flask)
@@ -46,6 +48,7 @@ app = Flask(__name__)
 # Anytime I want to interact with the SERVER FLASK I have to reference the "app" variable
 # the @ is a python DECORATOR
 # The / is the DEFAULT slash
+
 """ 
 /users	        GET	        index	    See all users
 /users/new	    GET	        new	      See new user form
@@ -90,12 +93,18 @@ MAYBE ITEMS TO DO:
 
 @app.route('/')
 def users_index():
-  #Show All users (and their total donations)
-  return render_template('users_index.html', users=users.find(), donations=donations, charities=charities)
+  #Show All users
+  users = db.users.find({})
+  return render_template('users_index.html', users=users)
+  # , donations=donations, charities=charities)
 
 @app.route('/users/new')
 def users_new():
-  return render_template('users_new.html')
+  user = {
+    'username': "",
+    'name': "",
+  }
+  return render_template('users_new.html', user=user, title='New User')
 
 @app.route('/users', methods=['POST'])
 def users_submit():
@@ -104,8 +113,103 @@ def users_submit():
         'username': request.form.get('username'),
         'name': request.form.get('name'),
     }
-    users.insert_one(user)
+    db.users.insert_one(user)
     return redirect(url_for('users_index'))
+
+@app.route('/users/<user_id>')
+def users_show(user_id):
+  user = db.users.find_one({'_id': ObjectId(user_id)})
+  #users_donations = donations.find({'users_id': users_id}
+  return render_template('users_show.html', user=user) 
+  #, donations=users_donations)
+
+@app.route('/users/<user_id>/edit')
+def users_edit(user_id):
+  user = db.users.find_one({'_id': ObjectId(user_id)})
+  return render_template('users_edit.html', user=user, title='Edit User')
+
+@app.route('/users/<user_id>', methods=['POST'])
+def users_update(user_id):
+    updated_user = {
+        'username': request.form.get('username'),
+        'name': request.form.get('name'),
+    }
+    db.users.update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': updated_user})
+    return redirect(url_for('users_show', user_id=user_id))
+
+@app.route('/users/<user_id>/delete', methods=['POST'])
+def users_del(user_id):
+    db.users.delete_one({'_id': ObjectId(user_id)})
+    return redirect(url_for('users_index'))
+
+
+
+"""
+
+# NEW DONATION BELOW: --------------------------------------------------------------
+
+@app.route('/donations/new')
+def donation_new():
+    return render_template('donations_new.html')
+
+@app.route('/donations', methods=['POST'])
+def donation_submit():
+    donation = {
+      #Drop Down list of Users
+        'username': request.form.get('username'),
+      # Drop Down Name Of Charity
+        'name': request.form.get('charity'),
+      # Calendar Picker for Date of Donation
+        'date': request.form.get('date'),
+      # Amount of Donation
+        'amount': request.form.get('amount'),
+      }
+    donations.insert_one(donation)
+    return redirect(url_for('donations_index'))
+
+@app.route('/donations/<donations_id>/remove', methods=['POST'])
+def donations_del(donations_id):
+    donations.delete_one({'_id': ObjectId(donations_id)})
+    return redirect(url_for('donations_index'))
+
+
+#DONATION ABOVE: --------------------------------------------------------------    
+
+#CHARITY BELOW: ---------------------------------------------------------------
+
+@app.route('/charities/new')
+def charities_new():
+    return render_template('charities_new.html')
+
+@app.route('/charities', methods=['POST'])
+def charities_submit():
+    charity = {
+      # Create a new Charity Organization
+        'name': request.form.get('charity'),
+      # What is the Charities Impact Score
+        'impact': request.form.get('impact'),
+      # Small description/information about Charity
+        'info': request.form.get('info'),
+      }
+    charities.insert_one(charity)
+    return redirect(url_for('charities_index'))
+
+@app.route('/charities/<charities_id>/remove', methods=['POST'])
+def charities_del(charities_id):
+    charities.delete_one({'_id': ObjectId(charities_id)})
+    return redirect(url_for('charities_index'))
+
+#CHARITY ABOVE: --------------------------------------------------------------
+
+
+
+"""
+
+
+
+
 
 
 # turn the server on for serving... servering!

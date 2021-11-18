@@ -1,15 +1,18 @@
 <!-- templates/users_index.html -->
+
 {% extends 'base.html' %}
->
+
 {% block content %}
-    <h1>Users</h1>
+<h4>Users</h4>
 
-    <a href='/users/new'>New User</a>
-
+<div class ='row'>
     {% for user in users %}
-        <h5>{{ user.username }}</h5>
-        <small>{{ user.name }}</small>
-        <small>Total Combined Donations: ${{ user.donations}}</small>
-
-    {% endfor %}
+        <div class='col-md-3 card border-primary mb-3" style="margin:15px; min-height:200px;'>
+                <h2 class='card-title'><a href='/users/{{ user._id }}'>{{ user.username }}</a></h2>
+                <p class='card-text'><small>{{ user.name }}</small></p>
+                <p class='card-text'><small>Total Donated: $</small></p>
+        </div>    
+    {% endfor %}        
+</div>
+<a href='/users/new'>Create a New User</a>
 {% endblock %}
