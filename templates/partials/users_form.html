@@ -1,6 +1,4 @@
 <!-- templates/partials/users_form.html -->
-{% extended 'base.html' %}
-
 {% block content %}
 
 <fieldset>
@@ -8,13 +6,13 @@
    <!-- TITLE -->
    <div class='form-group'>
        <label for='users-username'>Username</label><br>
-       <input class='form-control' id='users-username' type='text' name='username' value='{{ users.username }}'/>
+       <input class='form-control' id='users-username' type='text' name='username' value='{{ user.username }}'/>
    </div>
 
    <!-- NAME -->
    <div class='form-group'>
        <label for='name'>Name</label><br>
-       <input class='form-control' id='name' type='text' name='name' value='{{ users.name }}' />
+       <input class='form-control' id='name' type='text' name='name' value='{{ user.name }}' />
    </div>
 
    <!-- Donations IDS -->

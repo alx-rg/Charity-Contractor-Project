@@ -31,11 +31,12 @@ app = Flask(__name__)
 
 uri = os.environ.get('MONGODB_URI')
 client = MongoClient(uri)
-db = client.CharityTracker
+db = client.get_database('CharityTracker')
+
+
 
 #ca = certifi.where()
 #host = os.environ.get('MONGODB_URI') 
-#DATABASE_URL = f'mongodb+srv://alexross:{os.environ.get("password")}@cluster0.c3gdz.mongodb.net/Cluster0?retryWrites=true&w=majority'
 
 
 
