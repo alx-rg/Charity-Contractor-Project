@@ -146,18 +146,16 @@ def users_del(user_id):
     return redirect(url_for('users_index'))
 
 
-
-"""
-
 # NEW DONATION BELOW: --------------------------------------------------------------
 
 @app.route('/donations/new')
 def donation_new():
+  # Hidden Form element to add the donation to the user
     return render_template('donations_new.html')
 
 @app.route('/donations', methods=['POST'])
 def donation_submit():
-    donation = {
+    db.donation = {
       #Drop Down list of Users
         'username': request.form.get('username'),
       # Drop Down Name Of Charity
@@ -167,17 +165,19 @@ def donation_submit():
       # Amount of Donation
         'amount': request.form.get('amount'),
       }
-    donations.insert_one(donation)
+    db.donations.insert_one(donation)
     return redirect(url_for('donations_index'))
 
 @app.route('/donations/<donations_id>/remove', methods=['POST'])
 def donations_del(donations_id):
-    donations.delete_one({'_id': ObjectId(donations_id)})
+    db.donations.delete_one({'_id': ObjectId(donations_id)})
     return redirect(url_for('donations_index'))
 
 
 #DONATION ABOVE: --------------------------------------------------------------    
 
+
+"""
 #CHARITY BELOW: ---------------------------------------------------------------
 
 @app.route('/charities/new')

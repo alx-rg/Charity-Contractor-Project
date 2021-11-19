@@ -8,12 +8,20 @@
         <h1>{{ user.username }}</h1>
         <h2>{{ user.name }}</h2>
 
-        <p><a href='/users/{{ user._id }}/edit'>Edit</a></p>
+        <p><a href='/users/{{ user._id }}/edit'>Edit User</a></p>
         <p><form method='POST' action='/users/{{user._id}}/delete'>
-            <button class='btn btn-primary' type='submit'>Delete</button>
+            <button class='btn btn-primary' type='submit'>Delete User</button>
         </form></p>
 
         <hr>
+
+        <p><form action='/donations/new'>
+            <button class='btn btn-primary' type='submit'>New Donations</button>
+        </form></p>
+
+        <div class='pull-right'>
+            <a href='/donations/new' class='btn btn-default navbar-btn' style="color:aliceblue;">New Donation</a>
+        </div>
 
     <!-- Add your new partial here: -->
     <!-- Comment form -->

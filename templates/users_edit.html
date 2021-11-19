@@ -4,7 +4,7 @@
 {% block content %}
 <div class='row'>
     <div class='col-sm-6 col-sm-offset-3'>
-        <form method='POST' action='/users'>
+        <form method='POST' action='/users/{{ user._id }}'>
             {% include 'partials/users_form.html' %}
             <!-- BUTTON -->
             <div class='form-group'>
