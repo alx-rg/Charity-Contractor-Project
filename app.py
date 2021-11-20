@@ -17,43 +17,17 @@ import os
 uri = os.environ.get('MONGODB_URI')
 client = MongoClient(uri)
 db = client.get_database('CharityTracker')
+donations = db.donations
+
 
 app = Flask(__name__)
-
-""" 
-/donations	        GET	        index	    See all donations      <----- MAYBE
-/donations	        POST	      create	  Create a new donation
-/donations/:id/edit	GET	        edit	    See an edit donation form
-/donations/:id	    PATCH/PUT	  update	  Update a donation
-/donations/:id	    DELETE	    destroy	  Delete a donation
-
-MAYBE ITEMS TO DO:
-/charities	        GET	        index	    See all charities
-/charities/new	    GET	        new	      See new charity form
-/charities	        POST	      create	  Create a new charity
-/charities/:id	    GET	        show	    See one charity
-/charities/:id/edit	GET	        edit	    See an edit charity form
-/charities/:id	    PATCH/PUT	  update	  Update a charity
-/charities/:id	    DELETE	    destroy	  Delete a charity
- """
-
-# ONLY ALLOW THE WEBSITE TO DISPLAY (Drop Down) A CHARITY LISTED below (to start)
-# TO DO - Allow user to enter a new charity, and once listed, allow to be chosen from drop down
-# charities = [
-#     { '_id': 1, 'name': 'Humane Society', 'impact': 10, 'info': 'Helps dogs find new homes, succesful 100%.'}, 
-#     { '_id': 2, 'name': 'Dogs For Life', 'impact': 9, 'info': 'Dogs and wonderful families.'},
-#     { '_id': 3, 'name': 'MooseDoodle Shelter', 'impact': 10, 'info': 'Shelter 4 dogs.'},
-#     { '_id': 4, 'name': 'Green Peace Dogs', 'impact': 8, 'info': 'Saves dogs in the food trade.'},
-#     { '_id': 5, 'name': 'Vegetarians United', 'impact': 8, 'info': 'Vegans and Non-Vegans co-exist.'},
-#     { '_id': 6, 'name': 'I love my vegs', 'impact': 9, 'info': 'Save our planet one veggie at a time.'},
-# ]
 
 @app.route('/')
 def users_index():
   #Show All users
   users = db.users.find({})
   return render_template('users_index.html', users=users)
-  # , donations=donations, charities=charities)
+
 
 @app.route('/users/new')
 def users_new():
@@ -76,9 +50,10 @@ def users_submit():
 @app.route('/users/<user_id>')
 def users_show(user_id):
   user = db.users.find_one({'_id': ObjectId(user_id)})
-  #users_donations = donations.find({'users_id': users_id}
-  return render_template('users_show.html', user=user) 
-  #, donations=users_donations)
+  user_donations = donations.find({'user_id': ObjectId(user_id)})
+  return render_template('users_show.html', user=user, donations=user_donations) 
+
+
 
 @app.route('/users/<user_id>/edit')
 def users_edit(user_id):
@@ -104,48 +79,27 @@ def users_del(user_id):
 
 # NEW DONATION BELOW: --------------------------------------------------------------
 
+@app.route('/users/donations', methods=['POST'])
+def donations_new():
+    """Submit a new donation"""
+    donation = {
+        'charity': request.form.get('charity'),
+        'date': request.form.get('date'), 
+        'amount': int(request.form.get('amount')),
+        'user_id': ObjectId(request.form.get('user_id')),
+    }
+    donations.insert_one(donation)
+    return redirect(url_for('users_show', user_id=request.form.get('user_id')))
+
+@app.route('/donations/<donations_id>/remove', methods=['POST'])
+def donations_del(donations_id):
+    donations.delete_one({'_id': ObjectId(donations_id)})
+    return redirect(url_for('donations_index'))
+
 @app.route('/donations/new')
 def donation_new():
   # Hidden Form element to add the donation to the user
     return render_template('donations_new.html')
-
-"""
-@app.route('users/donations', method=['POST'])
-def donations_new():
-  donation = {
-      'user_id': request.form.get('user_id'),
-    # Name of the charity
-      'charityName': request.form.get('charity'),
-    # Calendar Picker for Date of Donation
-      'date': request.form.get('date'),
-    # Amount of Donation
-      'amount': request.form.get('amount'),
-    }
-  db.donations.insert_one(donation)
-  return redirect(url_for('users_show', user_id=user_id))
-  # Hidden Form element to add the donation to the user
-"""
-
-@app.route('/donations', methods=['POST'])
-def donation_submit():
-    db.donation = {
-      #Drop Down list of Users
-        'username': request.form.get('username'),
-      # Drop Down Name Of Charity
-        'name': request.form.get('charity'),
-      # Calendar Picker for Date of Donation
-        'date': request.form.get('date'),
-      # Amount of Donation
-        'amount': request.form.get('amount'),
-      }
-    db.donations.insert_one(donation)
-    return redirect(url_for('donations_index'))
-
-@app.route('/donations/<donations_id>/remove', methods=['POST'])
-def donations_del(donations_id):
-    db.donations.delete_one({'_id': ObjectId(donations_id)})
-    return redirect(url_for('donations_index'))
-
 #DONATION ABOVE: --------------------------------------------------------------    
 
 #CHARITIES BELOW: --------------------------------------------------------------    
