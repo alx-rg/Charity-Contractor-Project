@@ -4,10 +4,12 @@ Welcome to your brand new dashboard for your Donation Tracker! This is an easy w
 ## How To Use:
 Either visit the website: 
 [Heroku Link](http://charity-tracker-arg.herokuapp.com/)
-Or download code.
+Or download the code.
 
 ### Wireframe:
+Main Dashboard
 ![Main Dashboard](INFO/maindashboard.png)
+User Page
 ![User Page](INFO/userpage.png)
 
 ### ERD:
