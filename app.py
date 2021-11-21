@@ -19,7 +19,6 @@ client = MongoClient(uri)
 db = client.get_database('CharityTracker')
 donations = db.donations
 
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -27,7 +26,6 @@ def users_index():
   #Show All users
   users = db.users.find({})
   return render_template('users_index.html', users=users)
-
 
 @app.route('/users/new')
 def users_new():
@@ -52,8 +50,6 @@ def users_show(user_id):
   user = db.users.find_one({'_id': ObjectId(user_id)})
   user_donations = donations.find({'user_id': ObjectId(user_id)})
   return render_template('users_show.html', user=user, donations=user_donations) 
-
-
 
 @app.route('/users/<user_id>/edit')
 def users_edit(user_id):
@@ -91,28 +87,33 @@ def donations_new():
     donations.insert_one(donation)
     return redirect(url_for('users_show', user_id=request.form.get('user_id')))
 
-@app.route('/donations/<donations_id>/remove', methods=['POST'])
+@app.route('/users/donations/<donations_id>', methods=['POST'])
 def donations_del(donations_id):
     donations.delete_one({'_id': ObjectId(donations_id)})
-    return redirect(url_for('donations_index'))
+    return redirect(url_for('users_show', user_id=request.form.get('user_id')))
 
 @app.route('/donations/new')
 def donation_new():
   # Hidden Form element to add the donation to the user
     return render_template('donations_new.html')
+
+@app.route('/donation_info', methods=["GET"])
+def donations_info(user_id):
+    user = db.users.find_one({'_id': ObjectId(user_id)})
+    user_donations = donations.find({'user_id': ObjectId(user_id)})
+    donation_info_totals = donations.aggregate([{"$match": {"user_id": ObjectId(user_id)}},
+                                                {"$group": {"_id": None,
+                                                            "total_given": {"$sum": "$amount"}}},
+                                              ])
+    donation_info_list = list(donation_info_totals)
+    donation_info = donation_info_list[0] if len(donation_info_list) != 0 else None
+    return render_template("users_show.html", user=user, donations=user_donations, donation_info=donation_info)
+
+
 #DONATION ABOVE: --------------------------------------------------------------    
 
-#CHARITIES BELOW: --------------------------------------------------------------    
 
-@app.route('/charities/new')
-def charities_new():
-    return render_template('charities_new.html')
-
-#CHARITIES ABOVE: --------------------------------------------------------------    
-
-
-
-# turn the server on for serving... servering!
+# turn the server on for servering
 if __name__ == '__main__':
   app.run(debug=True, port=3000)
 

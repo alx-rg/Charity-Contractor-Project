@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% include 'partials/navuser.html' %}
 <div class='row'>
     <div class='col-sm-6 col-sm-offset-3'>
         <form method='POST' action='/users/{{ user._id }}'>
